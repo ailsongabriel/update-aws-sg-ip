@@ -1,94 +1,122 @@
-# 🔐 AWS Security Group IP Auto-Updater (PowerShell)
+# 🔐 AWS Security Group IP Auto-Updater
 
-This PowerShell script automatically updates the IP address of a specified AWS Security Group rule (e.g., for MySQL, RDP, or SSH access), based on your machine's current public IP address.
+Scripts to automatically update the allowed IP address of an AWS Security Group inbound rule based on your machine's current public IP.
+
+Includes:
+
+* **PowerShell version** (Windows)
+* **Bash version** (Linux/macOS)
 
 ---
 
 ## 💡 Why This Script Exists
 
-If your public IP address changes frequently (for example, in a home or office with a dynamic IP), accessing AWS resources like EC2 instances or databases becomes frustrating — you constantly have to manually update the IP in the security group to maintain access.
+If your public IP address changes frequently (for example, on a home or office network with a dynamic IP), accessing AWS resources like EC2 instances or databases becomes frustrating.
+You constantly have to manually update the IP in the Security Group to maintain access.
 
-This script automates that process by:
-- Detecting your current public IP address
-- Updating the AWS Security Group to allow access from that IP
-- (Optionally) Revoking the previous IP rule
-- Storing the last used IP locally to avoid redundant updates
+These scripts automate that process by:
+
+* Detecting your current public IP address
+* Updating the AWS Security Group to allow access from that IP
+* (Optionally) Revoking the previous IP rule
+* Storing the last used IP locally to avoid redundant updates
 
 ---
 
 ## 📌 Features
 
-- Fully automated using PowerShell and AWS CLI
-- Works for any TCP port (MySQL, SSH, RDP, etc.)
-- Minimal configuration required
-- Can be scheduled to run daily via Windows Task Scheduler
-
+* Fully automated via AWS CLI
+* Works for any inbound or outbound rule in a Security Group
+* Minimal configuration required
+* Can be scheduled:
+  * **Windows Task Scheduler** (PowerShell)
+  * **cron** (Bash)
 ---
 
 ## ⚙️ Requirements
 
-- [PowerShell 5.1+](https://learn.microsoft.com/en-us/powershell/)
-- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)
-- AWS credentials configured (`aws configure`)
-  - Required permissions:
-    - `ec2:RevokeSecurityGroupIngress`
-    - `ec2:AuthorizeSecurityGroupIngress`
+### PowerShell (Windows)
+
+* [PowerShell 5.1+](https://learn.microsoft.com/en-us/powershell/)
+* [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)
+* AWS credentials configured (`aws configure`)
+* Required permissions:
+  * `ec2:RevokeSecurityGroupIngress`
+  * `ec2:AuthorizeSecurityGroupIngress`
+
+### Bash (Linux/macOS)
+
+* [Bash 4+](https://www.gnu.org/software/bash/)
+* [curl](https://curl.se/)
+* [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)
+* AWS credentials configured (`aws configure`)
+* Required permissions:
+  * `ec2:RevokeSecurityGroupIngress`
+  * `ec2:AuthorizeSecurityGroupIngress`
 
 ---
 
 ## 🚀 Setup and Usage
 
-1. Clone this repository or download the script file:
+### PowerShell (Windows)
+
+1. Clone the repository:
 
    ```powershell
    git clone https://github.com/ailsongabriel/update-aws-sg-ip.git
    cd update-aws-sg-ip
-
-2. Open `update-aws-sg-ip.ps1` and edit the following variables:
-
-   ```powershell
-   $securityGroupId = "sg-1234567890ABCDEFG"  # Replace with your actual security group ID
-   $protocol = "tcp" # Change to the protocol you need (tcp, udp, etc.)
-   $port = 3306  # Change this to the port you want to allow (e.g., 3389 for RDP, 22 for SSH)
    ```
 
-3. Run the script manually to test:
+2. Edit the `update-sg-ip.ps1` file:
 
    ```powershell
-   powershell.exe -ExecutionPolicy Bypass -File .\update-sg-ip.ps1
+   $securityGroupId = "sg-1234567890ABCDEFG"
+   $protocol = "tcp"
+   $port = 3306
    ```
 
-4. (Optional) Schedule it using Windows Task Scheduler for automatic daily execution.
+3. Run the script:
+
+   ```powershell
+   .\update-sg-ip.ps1
+   ```
 
 ---
 
-## 🕒 Task Scheduler Setup (Windows)
+### Bash (Linux/macOS)
 
-1. Open **Task Scheduler** → **Create Task**
-2. Under **General**:
+1. Clone the repository:
 
-   * Name: `Update AWS Security Group IP`
-   * Run with highest privileges
-3. Under **Triggers**:
+   ```bash
+   git clone https://github.com/ailsongabriel/update-aws-sg-ip.git
+   cd update-aws-sg-ip
+   ```
 
-   * Add → Daily → Select your preferred time
-4. Under **Actions**:
+2. Edit the `update-sg-ip.sh` file:
 
-   * Program/script:
+   ```bash
+   security_group_id="sg-1234567890ABCDEFG"
+   protocol="tcp"
+   port=3306
+   ```
 
-     ```
-     powershell.exe
-     ```
-   * Add arguments:
+3. Make it executable:
 
-     ```
-     -ExecutionPolicy Bypass -File "C:\path\to\update-sg-ip.ps1"
-     ```
+   ```bash
+   chmod +x update-sg-ip.sh
+   ```
+
+4. Run the script:
+
+   ```bash
+   ./update-sg-ip.sh
+   ```
 
 ---
 
 ## 📂 Notes
 
-* The script stores the last known IP in `ip.txt` (same folder).
+* Both scripts store the last known IP in `ip.txt` (in the same folder).
 * If `ip.txt` is missing, the script will simply authorize the current IP.
 
+---
