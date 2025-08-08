@@ -1,5 +1,6 @@
 #!/bin/bash
 # AWS Security Group IP Auto-Updater (Bash Version)
+# This script fetches the current public IP and updates an AWS Security Group rule accordingly.
 
 ip_file="ip.txt"
 current_ip=$(curl -s https://api.ipify.org)
